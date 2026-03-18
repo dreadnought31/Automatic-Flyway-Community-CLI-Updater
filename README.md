@@ -1,180 +1,172 @@
-# Flyway Auto-Updater for Windows
+Automatic Flyway Community CLI Updater
 
-A PowerShell script that automatically detects, downloads, and installs the latest version of [Flyway](https://flywaydb.org/) on Windows. 
-It queries the GitHub Releases API to find the newest version, attempts to download from GitHub first, and falls back to the Redgate mirror if needed.
+This repository provides scripts to automatically install or update the Flyway Community CLI on both:
 
----
+🪟 Windows (PowerShell)
 
-## Features
+🐧 Linux (Bash)
 
-- **Auto-detects the latest version** via the GitHub Releases API — no hardcoded version numbers
-- **Dual download sources** — GitHub primary, Redgate CDN fallback
-- **Clean installs** — wipes the existing Flyway directory before installing the new version
-- **Full logging** — all output is transcribed to `D:\flywayinstall.txt`
-- **Post-install verification** — runs `flyway --version` to confirm a successful install
-- **Automatic temp cleanup** — removes downloaded ZIPs and extracted folders after install
+The scripts detect the latest Flyway release, download it, install or upgrade the CLI, and verify the installation.
 
----
+🚀 Features
 
-## Requirements
+Automatically detects the latest Flyway version from GitHub
 
-- Windows (x64)
-- PowerShell 5.1 or later
-- Internet access to reach `api.github.com` and either `github.com` or `download.red-gate.com`
-- The `D:\` drive must exist (or paths must be adjusted — see [Configuration](#configuration))
+Downloads from GitHub with fallback support
 
----
+Installs or upgrades Flyway in a defined location
 
-## Installation & Usage
+Cleans up temporary files after installation
 
-1. Download or clone `Flyway-autoupdater.ps1` to your machine.
+Verifies installation using flyway --version
 
-2. Open PowerShell **as Administrator**.
+Supports custom install paths
 
-3. If required, allow script execution:
-   ```powershell
-   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-   ```
+Logging for troubleshooting
 
-4. Run the script:
-   ```powershell
-   .\Flyway-autoupdater.ps1
-   ```
+Cross-platform support (Windows + Linux)
 
-5. Once the script completes, it will confirm the installed version, it you want to do this manually then run the below command:
-   ```powershell
-   D:\Flyway\flyway.cmd --version
-   ```
+📦 Requirements
+Windows
 
----
+PowerShell 5.1 or later
 
-## Configuration
+Internet access
 
-The following paths are defined at the top of the script and can be changed to suit your environment:
+Permissions to write to install directory
 
-| Variable | Default | Description |
-|---|---|---|
-| `$flywayInstallPath` | `D:\Flyway` | Where Flyway will be installed |
-| `$Downloads` | `D:\temp\flywaydownloads` | Temporary folder for downloaded ZIPs |
-| `$TempExtractRoot` | `D:\temp\flyway_extract` | Temporary folder for ZIP extraction |
+Linux
 
-The install log is always written to `D:\flywayinstall.txt`.
+Linux OS (Ubuntu/Debian tested)
 
----
+curl or wget
 
-## How It Works
+tar
 
-```
-1. Ensure required directories exist
-2. Clean the existing Flyway install directory
-3. Query GitHub API → resolve the latest Flyway release tag
-4. Build the download URL for the Windows x64 ZIP
-5. Attempt download from GitHub Releases
-   └── If failed → retry from Redgate CDN
-6. Extract ZIP to temp folder
-7. Copy contents to $flywayInstallPath
-8. Verify flyway.cmd exists in the install path
-9. Clean up temp files and folders
-10. Run `flyway --version` to confirm success
-```
+sudo privileges (recommended)
 
----
+📂 Default Paths
+Windows
+Purpose	Path
+Install Location	D:\Flyway
+Download Temp	D:\FlywayDownloads
+Extract Temp	D:\FlywayExtract
+Log File	D:\FlywayInstall.log
+Linux
+Purpose	Path
+Install Location	/opt/flyway
+Download Temp	/tmp/flywaydownloads
+Extract Temp	/tmp/flyway_extract
+Log File	/var/log/flywayinstall.log (fallback: local dir)
+⚙️ Installation & Usage
+🪟 Windows (PowerShell)
+1. Run the script
+.\Flyway-autoupdater.ps1
+2. Verify installation
+flyway -v
+3. Optional: Add to PATH
+[Environment]::SetEnvironmentVariable(
+  "Path",
+  $env:Path + ";D:\Flyway",
+  [EnvironmentVariableTarget]::Machine
+)
+🐧 Linux (Bash)
+1. Make script executable
+chmod +x flyway-autoupdater.sh
+2. Run the script
+sudo ./flyway-autoupdater.sh
+3. Verify installation
+flyway --version
 
-## Logging
+If not in PATH:
 
-A full transcript of each run is appended to `D:\flywayinstall.txt`. This is useful for auditing updates or diagnosing failures in automated/scheduled deployments.
+/opt/flyway/flyway --version
+🔧 Custom Configuration
+Windows
 
----
+Edit variables inside the script:
 
-## Scheduled Automation
+$FlywayInstallPath = "D:\Flyway"
+Linux
 
-To run this script on a schedule (e.g. monthly), register it as a Windows Scheduled Task:
+Override via environment variable:
 
-```powershell
-$action  = New-ScheduledTaskAction -Execute "powershell.exe" `
-             -Argument "-NonInteractive -ExecutionPolicy Bypass -File D:\scripts\Flyway-autoupdater.ps1"
-$trigger = New-ScheduledTaskTrigger -Monthly -DaysOfMonth 1 -At "02:00"
-Register-ScheduledTask -TaskName "Flyway Auto-Updater" -Action $action -Trigger $trigger -RunLevel Highest
-```
+sudo FLYWAY_INSTALL_PATH=/usr/local/flyway ./flyway-autoupdater.sh
+🔗 Optional: Add Flyway to PATH
+Windows
+setx PATH "$env:PATH;D:\Flyway"
+Linux
+Option 1 — Symlink
+sudo ln -s /opt/flyway/flyway /usr/local/bin/flyway
+Option 2 — Profile
+export PATH=$PATH:/opt/flyway
+📝 Logging
+Windows
+D:\FlywayInstall.log
+Linux
+/var/log/flywayinstall.log
 
----
+Fallback:
 
-## Troubleshooting
+./flywayinstall.log
+⚠️ Notes
 
-| Symptom | Likely Cause | Fix |
-|---|---|---|
-| `GitHub response missing tag_name` | GitHub API rate limit or network block | Check connectivity to `api.github.com` |
-| `Could not download Flyway` | Both GitHub and Redgate unreachable | Verify outbound HTTPS access; check proxy settings |
-| `flyway.cmd not found` | Unexpected ZIP structure | Check log for extracted folder contents |
-| Script exits immediately | Execution policy restriction | Run `Set-ExecutionPolicy Bypass -Scope Process` |
+Installs Flyway Community Edition
 
----
+Existing installations are replaced during upgrade
 
-## Version History
+No flyway.conf is created automatically
 
-| Version | Notes |
-|---|---|
-| 1.0 | Initial release — GitHub primary + Redgate fallback, auto-version detection |
+Migration script locations must be configured separately
 
----
+Scripts are designed for automation use cases
 
-## Author
+🛠️ Troubleshooting
+Permission Issues
 
-**Alan O'Brien**
+Windows
 
----
+Run PowerShell as Administrator
 
-## License
+Linux
 
-This project is provided as-is for personal and organisational use. No warranty is expressed or implied.
+sudo ./flyway-autoupdater.sh
+Download Failures
 
+Check connectivity to:
 
+GitHub Releases
 
-**When you run this file you should expect an output similar to below.**
+Redgate Flyway distribution servers
 
-PS C:\Users\aobrien> . 'D:\Flyway-autoupdater.ps1'
+Flyway Not Found
 
-Transcript started, output file is D:\flywayinstall.txt
+Use full path:
 
-Preparing folders...
+Windows
 
-Cleaning up old Flyway installation...
+D:\Flyway\flyway -v
 
-Detecting latest Flyway version...
+Linux
 
-Latest Flyway version detected: 12.1.1
+/opt/flyway/flyway info
+Missing Migration Location Warning
 
-Downloading Flyway 12.1.1...
+Example:
 
-Downloading: https://github.com/flyway/flyway/releases/download/flyway-12.1.1/flyway-commandline-12.1.1-windows-x64.zip
+WARNING: No locations configured and default location 'sql' not found
 
-Extracting to D:\temp\flyway_extract ...
+Fix by specifying:
 
-Extracting...
+flyway -locations=filesystem:/path/to/sql migrate
+📌 Future Improvements
 
-Installing to D:\Flyway...
+Version pinning support
 
-Cleanup temporary files...
+Checksum validation
 
-Confirm Flyway is updated:
+Automatic PATH configuration option
 
-WARNING: No locations configured and default location 'sql' not found.
+CI/CD pipeline examples
 
-Flyway OSS Edition 12.1.1 by Redgate
-
-See release notes here: https://rd.gt/416ObMi
-Plugin Name                       | Version
---------------------------------- | ---------
-DB2 for z/OS                      | 10.24.0
-OceanBase                         | 10.24.0
-QuestDB                           | 10.24.0
-TiDB                              | 10.24.0
-YugabyteDB                        | 10.24.0
-ClickHouse                        | 10.24.0
-CUBRID                            | 10.24.0
-Databricks                        | 10.24.0
-DuckDB                            | 10.24.0
-Apache Ignite                     | 10.24.0
-InterSystems IRIS Data Platform   | 10.24.0
-Timeplus                          | 10.24.0
-Transcript stopped, output file is D:\flywayinstall.txt
+Config file templating (flyway.conf)
