@@ -41,7 +41,7 @@ It queries the GitHub Releases API to find the newest version, attempts to downl
    .\Flyway-autoupdater.ps1
    ```
 
-5. Once complete, confirm the install:
+5. Once the script completes, it will confirm the installed version, it you want to do this manually then run the below command:
    ```powershell
    D:\Flyway\flyway.cmd --version
    ```
