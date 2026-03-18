@@ -133,19 +133,33 @@ This project is provided as-is for personal and organisational use. No warranty 
 When you run this file you should expect an output similar to below.
 
 PS C:\Users\aobrien> . 'D:\Flyway-autoupdater.ps1'
+
 Transcript started, output file is D:\flywayinstall.txt
+
 Preparing folders...
+
 Cleaning up old Flyway installation...
+
 Detecting latest Flyway version...
+
 Latest Flyway version detected: 12.1.1
+
 Downloading Flyway 12.1.1...
+
 Downloading: https://github.com/flyway/flyway/releases/download/flyway-12.1.1/flyway-commandline-12.1.1-windows-x64.zip
+
 Extracting to D:\temp\flyway_extract ...
+
 Extracting...
+
 Installing to D:\Flyway...
+
 Cleanup temporary files...
+
 Confirm Flyway is updated:
+
 WARNING: No locations configured and default location 'sql' not found.
+
 Flyway OSS Edition 12.1.1 by Redgate
 
 See release notes here: https://rd.gt/416ObMi
