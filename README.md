@@ -130,7 +130,7 @@ This project is provided as-is for personal and organisational use. No warranty 
 
 
 
-When you run this file you should expect an output similar to below.
+**When you run this file you should expect an output similar to below.**
 
 PS C:\Users\aobrien> . 'D:\Flyway-autoupdater.ps1'
 
